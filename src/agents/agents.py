@@ -9,6 +9,15 @@ from ..tools.database import retrieve_transaction_data
 
 load_dotenv()
 
+directory = os.path.dirname(__file__)
+with open(os.path.join(directory, "../prompts/SUPERVISOR.md"), "r") as f:
+    SUPERVISOR_PROMPT = f.read()
+
+with open(os.path.join(directory,"../prompts/CUSTOMER_EXPERT.md"), "r") as f:
+    CUSTOMER_EXPERT_PROMPT = f.read()
+
+with open(os.path.join(directory,"../prompts/TRANSACTION_EXPERT.md"), "r") as f:
+    TRANSACTION_EXPERT_PROMPT = f.read()
 
 class Agents:
     def __init__(self):
@@ -90,50 +99,7 @@ To invoke this expert return complaints-expert.
             [
                 (
                     "system",
-                    "You are a helpful assistant. YOU MUST USE THE retrieve_transaction_data tool for information. When creating SQL Queries Select where user_no is equal to the user's id. Also the table is called transactions. YOU MUST GENERATE VALID SQL QUERIES."
-                    """
-  This is the schema of the sqlite3 database:
-"index" INTEGER,
-  "trans_date_trans_time" TIMESTAMP,
-  "cc_num" INTEGER,
-  "merchant" TEXT,
-  "category" TEXT,
-  "amt" REAL,
-  "first_name" TEXT,
-  "last_name" TEXT,
-  "gender" TEXT,
-  "street" TEXT,
-  "city" TEXT,
-  "state" TEXT,
-  "zip" INTEGER,
-  "lat" REAL,
-  "long" REAL,
-  "city_pop" INTEGER,
-  "dob" TEXT,
-  "trans_num" TEXT,
-  "unix_time" INTEGER,
-  "merch_lat" REAL,
-  "merch_long" REAL,
-  "merch_zipcode" REAL,
-  "user_id" INTEGER
-
-  AND categories = [
-    'gas_transport',
-    'grocery_pos',
-    'home',
-    'shopping_pos',
-    'kids_pets',
-    'shopping_net',
-    'entertainment',
-    'food_dining',
-    'personal_care',
-    'health_fitness',
-    'misc_pos',
-    'misc_net',
-    'grocery_net',
-    'travel'
-]
-                    """,
+                    TRANSACTION_EXPERT_PROMPT,
                 ),
                 ("placeholder", "{chat_history}"),
                 ("human", "{input}"),
