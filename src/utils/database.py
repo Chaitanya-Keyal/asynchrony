@@ -34,7 +34,7 @@ def get_chat_history(user_id: str) -> list[dict[str, str]]:
 
     return [
         {"query": query, "response": response, "agent": agent, "timestamp": timestamp}
-        for query, response, agent, timestamp in results
+        for query, response, agent, timestamp in results[-10:]
     ]
 
 

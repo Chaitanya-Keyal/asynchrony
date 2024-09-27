@@ -46,7 +46,7 @@ async def handle_login(request: LoginRequest) -> list[dict[str, str]]:
     chat_history = database.get_chat_history(user_id)
     for history in chat_history:
         resp = history["response"]
-        history["response"] = resp[: resp.find("Transaction Numbers")].strip()
+        history["response"] = resp[: resp.find("Transaction Number")].strip()
 
     return chat_history
 
@@ -79,7 +79,7 @@ async def handle_query(request: QueryRequest) -> str:
 
     agent_output = response["agent_output"]
     trans_num = (
-        "\n\n Transaction Numbers: " + str(agent_output["trans_num"])
+        "\n\n Transaction Number: " + agent_output["trans_num"]
         if agent_output["trans_num"]
         else ""
     )
