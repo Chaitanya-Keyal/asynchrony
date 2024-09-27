@@ -1,7 +1,10 @@
+import os
 from textwrap import dedent
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
+from ..tools.database import retrieve_transaction_data
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -9,7 +12,27 @@ load_dotenv()
 
 class Agents:
     def __init__(self):
-        self.openai_client = ChatOpenAI
+        if os.getenv("OPENAI_API_KEY"):
+            self.llm = ChatOpenAI(temperature=0, model="gpt-4o-mini")
+        else:
+            self.llm = ChatGroq(temperature=0, model="llama-3.1-70b-versatile")
+
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                (
+                    "system",
+                    "You are a helpful assistant. Make sure to use the retrieve_transaction_data tool for information.",
+                ),
+                ("placeholder", "{chat_history}"),
+                ("human", "{input}"),
+                ("placeholder", "{agent_scratchpad}"),
+            ]
+        )
+
+        self.transactional_tools = [retrieve_transaction_data]
+        self.transaction_expert_agent = create_tool_calling_agent(
+            self.llm, self.transactional_tools, prompt
+        )
 
     def supervisor(self, query: str, chat_history: str) -> str:
         message = [
@@ -67,7 +90,12 @@ To invoke this expert return "complaints-expert".
         query = f"<query>{query}</query>\n\n<history>{chat_history}</history>"
         message.append(("user", dedent(query)))
         final_prompt = ChatPromptTemplate.from_messages(message)
-        llm = self.openai_client(temperature=0, model="gpt-4o-mini")
+        llm = self.llm
         chain = final_prompt | llm
         result = chain.invoke({"input": query})
         return result.content
+
+    def transaction_expert(self, query: str, chat_history: str) -> str:
+        agent_executor = AgentExecutor(agent=self.transaction_expert_agent, tools=self.transactional_tools, verbose=True)
+        result = agent_executor.invoke({"input": query, "chat_history": list(chat_history)})
+        return result
