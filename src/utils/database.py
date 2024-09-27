@@ -45,9 +45,6 @@ def add_chat_history(user_id: str, query: str, response: str, agent: str):
 
     conn = sqlite3.connect("db/chat_history.db")
     cursor = conn.cursor()
-    print(
-        f"INSERT INTO chat_histories (user_id, query, response, agent) VALUES ({user_id}, '{query}', '{response}', '{agent}')"
-    )
     cursor.execute(
         f"INSERT INTO chat_histories (user_id, query, response, agent) VALUES ({user_id}, '{query}', '{response}', '{agent}')"
     )
