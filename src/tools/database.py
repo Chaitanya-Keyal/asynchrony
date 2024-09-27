@@ -1,6 +1,7 @@
-from langchain.tools import tool
 import sqlite3
 from typing import Any
+
+from langchain.tools import tool
 
 
 @tool
