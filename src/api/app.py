@@ -78,8 +78,16 @@ async def handle_query(request: QueryRequest) -> str:
         raise HTTPException(status_code=500, detail=str(e))
 
     agent_output = response["agent_output"]
+    trans_num = (
+        "\n\n Transaction Numbers: " + str(agent_output["trans_num"])
+        if agent_output["trans_num"]
+        else ""
+    )
     database.add_chat_history(
-        user_id, query, agent_output["output"], agent_output["agent"]
+        user_id,
+        query,
+        (agent_output["output"] + trans_num).replace("'", "''"),
+        agent_output["agent"],
     )
 
     return agent_output["output"]

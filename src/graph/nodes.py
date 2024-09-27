@@ -21,9 +21,14 @@ class Nodes:
         chat_history = state.get("chat_history")
         user_id = state.get("user_id")
         assert user_id is not None
-        result = ag.transaction_expert(query, chat_history, user_id)
+        result = json.loads(ag.transaction_expert(query, chat_history, user_id))
+
         return {
-            "agent_output": {"agent": "transaction_expert", "output": result},
+            "agent_output": {
+                "agent": "transaction_expert",
+                "output": result["reply"],
+                "trans_num": result["trans_num"],
+            },
         }
 
     def customer_expert(self, state):

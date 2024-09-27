@@ -35,17 +35,21 @@ class Agents:
             print("Using GROQ API")
 
     def supervisor(self, query: str, chat_history: str) -> str:
-        message = [
-            (
-                "system",
-                SUPERVISOR_PROMPT,
-            )
-        ]
-        query = f"<query>{query}</query>\n\n<history>{chat_history}</history>"
-        message.append(("user", dedent(query)))
-        final_prompt = ChatPromptTemplate.from_messages(message)
-        llm = self.llm
-        chain = final_prompt | llm
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                (
+                    "system",
+                    SUPERVISOR_PROMPT,
+                ),
+                (
+                    "user",
+                    dedent(
+                        f"<query>{query}</query>\n\n<history>{chat_history}</history>"
+                    ),
+                ),
+            ]
+        )
+        chain = prompt | self.llm
         result = chain.invoke({"input": query})
         return result.content
 
@@ -56,7 +60,7 @@ class Agents:
                     "system",
                     TRANSACTION_EXPERT_PROMPT,
                 ),
-                ("placeholder", "{chat_history}"),
+                ("system", "{chat_history}"),
                 ("human", "{input}"),
                 ("placeholder", "{agent_scratchpad}"),
             ]
@@ -78,18 +82,20 @@ class Agents:
         return result["output"]
 
     def customer_expert(self, query: str, chat_history: str):
-        message = [
-            (
-                "system",
-                CUSTOMER_EXPERT_PROMPT,
-            ),
-            (
-                "user",
-                dedent(f"<query>{query}</query>\n\n<history>{chat_history}</history>"),
-            ),
-        ]
-        final_prompt = ChatPromptTemplate.from_messages(message)
-        llm = self.llm
-        chain = final_prompt | llm
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                (
+                    "system",
+                    CUSTOMER_EXPERT_PROMPT,
+                ),
+                (
+                    "user",
+                    dedent(
+                        f"<query>{query}</query>\n\n<history>{chat_history}</history>"
+                    ),
+                ),
+            ]
+        )
+        chain = prompt | self.llm
         result = chain.invoke({"input": query})
         return result.content
