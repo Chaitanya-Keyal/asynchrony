@@ -11,7 +11,7 @@ def retrieve_transaction_data(sql_query: str) -> list[Any]:
     """
 
     print("Tool is being used", sql_query)
-    conn = sqlite3.connect("src/db/transactions.db")
+    conn = sqlite3.connect("db/transactions.db")
     cursor = conn.cursor()
     # FIX: only fetch do not insert or update
     cursor.execute(sql_query)
