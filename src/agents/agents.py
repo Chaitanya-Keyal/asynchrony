@@ -98,4 +98,4 @@ To invoke this expert return "complaints-expert".
     def transaction_expert(self, query: str, chat_history: str) -> str:
         agent_executor = AgentExecutor(agent=self.transaction_expert_agent, tools=self.transactional_tools, verbose=True)
         result = agent_executor.invoke({"input": query, "chat_history": list(chat_history)})
-        return result
+        return result['output']
