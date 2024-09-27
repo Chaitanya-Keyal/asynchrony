@@ -62,10 +62,9 @@ async def handle_query(request: QueryRequest) -> str:
     query = request.query
 
     chat_history = database.get_chat_history(user_id)
-
     parsed_chat_history = ""
-    for i, (query, response, agent, timestamp) in enumerate(chat_history):
-        parsed_chat_history += f"{i+1}. User: {query}\nAgent {agent}: {response}\n"
+    for i, history in enumerate(chat_history):
+        parsed_chat_history += f"{i+1}. User: {history['query']}\nAgent ({history['agent']}): {history['response']}\n"
 
     state = {
         "query": query,
