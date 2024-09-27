@@ -20,67 +20,6 @@ class Agents:
             self.llm = ChatGroq(temperature=0, model="llama-3.1-70b-versatile")
             print("Using GROQ API")
 
-        prompt = ChatPromptTemplate.from_messages(
-            [
-                (
-                    "system",
-                    "You are a helpful assistant. YOU MUST USE THE retrieve_transaction_data tool for information. When creating SQL Queries Select where user_no is equal to the user's id. Also the table is called transactions. YOU MUST GENERATE VALID SQL QUERIES."
-                    """
-  This is the schema of the sqlite3 database:
-"index" INTEGER,
-  "trans_date_trans_time" TIMESTAMP,
-  "cc_num" INTEGER,
-  "merchant" TEXT,
-  "category" TEXT,
-  "amt" REAL,
-  "first_name" TEXT,
-  "last_name" TEXT,
-  "gender" TEXT,
-  "street" TEXT,
-  "city" TEXT,
-  "state" TEXT,
-  "zip" INTEGER,
-  "lat" REAL,
-  "long" REAL,
-  "city_pop" INTEGER,
-  "dob" TEXT,
-  "trans_num" TEXT,
-  "unix_time" INTEGER,
-  "merch_lat" REAL,
-  "merch_long" REAL,
-  "merch_zipcode" REAL,
-  "user_id" INTEGER
-
-  AND categories = [
-    'gas_transport',
-    'grocery_pos',
-    'home',
-    'shopping_pos',
-    'kids_pets',
-    'shopping_net',
-    'entertainment',
-    'food_dining',
-    'personal_care',
-    'health_fitness',
-    'misc_pos',
-    'misc_net',
-    'grocery_net',
-    'travel'
-]
-                    """
-                    ,
-                ),
-                ("placeholder", "{chat_history}"),
-                ("human", "{input}"),
-                ("placeholder", "{agent_scratchpad}"),
-            ]
-        )
-
-        self.transactional_tools = [retrieve_transaction_data]
-        self.transaction_expert_agent = create_tool_calling_agent(
-            self.llm, self.transactional_tools, prompt
-        )
-
     def supervisor(self, query: str, chat_history: str) -> str:
         message = [
             (
@@ -143,6 +82,72 @@ To invoke this expert return complaints-expert.
         return result.content
 
     def transaction_expert(self, query: str, chat_history: str, user_id: str) -> str:
-        agent_executor = AgentExecutor(agent=self.transaction_expert_agent, tools=self.transactional_tools, verbose=True)
-        result = agent_executor.invoke({"input": f"User ID {user_id}: " + query, "chat_history": list(chat_history)})
-        return result['output']
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                (
+                    "system",
+                    "You are a helpful assistant. YOU MUST USE THE retrieve_transaction_data tool for information. When creating SQL Queries Select where user_no is equal to the user's id. Also the table is called transactions. YOU MUST GENERATE VALID SQL QUERIES."
+                    """
+  This is the schema of the sqlite3 database:
+"index" INTEGER,
+  "trans_date_trans_time" TIMESTAMP,
+  "cc_num" INTEGER,
+  "merchant" TEXT,
+  "category" TEXT,
+  "amt" REAL,
+  "first_name" TEXT,
+  "last_name" TEXT,
+  "gender" TEXT,
+  "street" TEXT,
+  "city" TEXT,
+  "state" TEXT,
+  "zip" INTEGER,
+  "lat" REAL,
+  "long" REAL,
+  "city_pop" INTEGER,
+  "dob" TEXT,
+  "trans_num" TEXT,
+  "unix_time" INTEGER,
+  "merch_lat" REAL,
+  "merch_long" REAL,
+  "merch_zipcode" REAL,
+  "user_id" INTEGER
+
+  AND categories = [
+    'gas_transport',
+    'grocery_pos',
+    'home',
+    'shopping_pos',
+    'kids_pets',
+    'shopping_net',
+    'entertainment',
+    'food_dining',
+    'personal_care',
+    'health_fitness',
+    'misc_pos',
+    'misc_net',
+    'grocery_net',
+    'travel'
+]
+                    """,
+                ),
+                ("placeholder", "{chat_history}"),
+                ("human", "{input}"),
+                ("placeholder", "{agent_scratchpad}"),
+            ]
+        )
+
+        tools = [retrieve_transaction_data]
+        agent = create_tool_calling_agent(self.llm, tools, prompt)
+        agent_executor = AgentExecutor(
+            agent=agent,
+            tools=tools,
+            verbose=True,
+        )
+        result = agent_executor.invoke(
+            {
+                "input": f"User ID {user_id}: " + query,
+                "chat_history": list(chat_history),
+            }
+        )
+        return result["output"]
