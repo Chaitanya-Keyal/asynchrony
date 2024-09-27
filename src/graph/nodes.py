@@ -1,3 +1,4 @@
+import json
 from src.agents import Agents
 
 ag = Agents()
@@ -26,8 +27,11 @@ class Nodes:
         }
 
     def customer_expert(self, state):
+        query = state.get("query")
+        chat_history = state.get("chat_history")
+        result = json.loads(ag.customer_expert(query, chat_history))
         return {
-            "agent_output": {"agent": "customer_expert", "output": "customer_expert"},
+            "agent_output": {"agent": "customer_expert", "output": result["reply"]},
         }
 
     def complaints_expert(self, state):
