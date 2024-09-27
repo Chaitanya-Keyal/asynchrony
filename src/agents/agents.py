@@ -26,12 +26,20 @@ class Agents:
         if os.getenv("OPENAI_API_KEY") and os.getenv("PREFFERED_API") != "GROQ":
             from langchain_openai import ChatOpenAI
 
-            self.llm = ChatOpenAI(temperature=0, model="gpt-4o-mini")
+            self.llm = ChatOpenAI(
+                temperature=0,
+                model="gpt-4o-mini",
+                max_tokens=128000,
+            )
             print("Using OpenAI API")
         else:
             from langchain_groq import ChatGroq
 
-            self.llm = ChatGroq(temperature=0, model="llama-3.1-70b-versatile")
+            self.llm = ChatGroq(
+                temperature=0,
+                model="llama-3.1-70b-versatile",
+                max_tokens=128000,
+            )
             print("Using GROQ API")
 
     def supervisor(self, query: str, chat_history: str) -> str:
