@@ -1,11 +1,11 @@
 import os
 from textwrap import dedent
+
+from dotenv import load_dotenv
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_openai import ChatOpenAI
-from langchain_groq import ChatGroq
+
 from ..tools.database import retrieve_transaction_data
-from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -14,9 +14,13 @@ class Agents:
     def __init__(self):
 
         if os.getenv("OPENAI_API_KEY") and os.getenv("PREFFERED_API") != "GROQ":
+            from langchain_openai import ChatOpenAI
+
             self.llm = ChatOpenAI(temperature=0, model="gpt-4o-mini")
             print("Using OpenAI API")
         else:
+            from langchain_groq import ChatGroq
+
             self.llm = ChatGroq(temperature=0, model="llama-3.1-70b-versatile")
             print("Using GROQ API")
 
@@ -67,8 +71,7 @@ class Agents:
     'grocery_net',
     'travel'
 ]
-                    """
-                    ,
+                    """,
                 ),
                 ("placeholder", "{chat_history}"),
                 ("human", "{input}"),
@@ -143,6 +146,15 @@ To invoke this expert return complaints-expert.
         return result.content
 
     def transaction_expert(self, query: str, chat_history: str, user_id: str) -> str:
-        agent_executor = AgentExecutor(agent=self.transaction_expert_agent, tools=self.transactional_tools, verbose=True)
-        result = agent_executor.invoke({"input": f"User ID {user_id}: " + query, "chat_history": list(chat_history)})
-        return result['output']
+        agent_executor = AgentExecutor(
+            agent=self.transaction_expert_agent,
+            tools=self.transactional_tools,
+            verbose=True,
+        )
+        result = agent_executor.invoke(
+            {
+                "input": f"User ID {user_id}: " + query,
+                "chat_history": list(chat_history),
+            }
+        )
+        return result["output"]
