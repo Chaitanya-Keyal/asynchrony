@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 from textwrap import dedent
 
@@ -59,7 +60,12 @@ class Agents:
     def supervisor(self, query: str, chat_history: str) -> str:
         prompt = self.get_prompt(SUPERVISOR_PROMPT, query, chat_history)
         chain = prompt | self.llm
-        result = chain.invoke({"input": query})
+        result = chain.invoke(
+            {
+                "input": query,
+                "current_time": datetime.now().isoformat(),
+            }
+        )
         return result.content
 
     def transaction_expert(self, query: str, chat_history: str, user_id: str) -> str:
@@ -76,9 +82,8 @@ class Agents:
         result = agent_executor.invoke(
             {
                 "user_id": user_id,
-                "input": dedent(
-                    f"<query>{query}</query>\n\n<history>{chat_history}</history>"
-                ),
+                "input": query,
+                "current_time": datetime.now().isoformat(),
             }
         )
         return result["output"]
@@ -86,5 +91,10 @@ class Agents:
     def customer_expert(self, query: str, chat_history: str):
         prompt = self.get_prompt(CUSTOMER_EXPERT_PROMPT, query, chat_history)
         chain = prompt | self.llm
-        result = chain.invoke({"input": query})
+        result = chain.invoke(
+            {
+                "input": query,
+                "current_time": datetime.now().isoformat(),
+            }
+        )
         return result.content
