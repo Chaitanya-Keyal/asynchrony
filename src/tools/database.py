@@ -1,10 +1,20 @@
 from langchain.tools import tool
-
+import sqlite3
+from typing import Any
 
 @tool
-def retrieve_transaction_data(sql_query: str) -> str:
+def retrieve_transaction_data(sql_query: str) -> list[Any]:
     """
     Retrieve data from a database using the given SQL query
     """
-    # This function is a placeholder for a function that would actually fetch data from a database
-    return "Rs. 1000"
+    
+    print("Tool is being used", sql_query)
+    conn = sqlite3.connect("db/transactions.db")
+    cursor = conn.cursor()
+    # FIX: only fetch do not insert or update
+    cursor.execute(sql_query)
+    result = cursor.fetchall()
+    conn.close()
+    print("Tool result", result)
+
+    return result
