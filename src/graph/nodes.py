@@ -40,9 +40,9 @@ class Nodes:
         }
 
     def complaints_expert(self, state):
+        query = state.get("query")
+        chat_history = state.get("chat_history")
+        result = json.loads(ag.complaints_expert(query, chat_history))
         return {
-            "agent_output": {
-                "agent": "complaints_expert",
-                "output": "complaints_expert",
-            },
+            "agent_output": {"agent": "complaints_expert", "output": result},
         }

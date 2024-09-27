@@ -19,6 +19,9 @@ with open(os.path.join(directory, "../prompts/CUSTOMER_EXPERT.md"), "r") as f:
 
 with open(os.path.join(directory, "../prompts/TRANSACTION_EXPERT.md"), "r") as f:
     TRANSACTION_EXPERT_PROMPT = f.read()
+    
+with open(os.path.join(directory, "../prompts/SUMMARISE_COMPLAINT.md"), "r") as f:
+    SUMMARISE_COMPLAINT_PROMPT = f.read()
 
 
 class Agents:
@@ -98,3 +101,19 @@ class Agents:
             }
         )
         return result.content
+
+    def complaints_expert(self, query: str):
+        return
+    
+    def summarise_complaint(self, query: str):
+        prompt = self.get_prompt(SUMMARISE_COMPLAINT_PROMPT, query, "")
+        chain = prompt | self.llm
+        result = chain.invoke(
+            {
+                "input": query,
+                "current_time": datetime.now().isoformat(),
+            }
+        )
+        return result.content
+
+    
