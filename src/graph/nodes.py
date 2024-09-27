@@ -22,5 +22,18 @@ class Nodes:
         assert user_id is not None
         result = ag.transaction_expert(query, chat_history, user_id)
         return {
-            "agent_output": {"agent": "transaction_expert_agent", "output": result},
+            "agent_output": {"agent": "transaction_expert", "output": result},
+        }
+
+    def customer_expert(self, state):
+        return {
+            "agent_output": {"agent": "customer_expert", "output": "customer_expert"},
+        }
+
+    def complaints_expert(self, state):
+        return {
+            "agent_output": {
+                "agent": "complaints_expert",
+                "output": "complaints_expert",
+            },
         }
