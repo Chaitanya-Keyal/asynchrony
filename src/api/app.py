@@ -83,9 +83,3 @@ async def handle_query(request: QueryRequest) -> str:
     )
 
     return agent_output["output"]
-
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, host="localhost", port=8000)
