@@ -29,7 +29,7 @@ class Agents:
             self.llm = ChatOpenAI(
                 temperature=0,
                 model="gpt-4o-mini",
-                max_tokens=128000,
+                max_tokens=16000,
             )
             print("Using OpenAI API")
         else:
@@ -38,42 +38,34 @@ class Agents:
             self.llm = ChatGroq(
                 temperature=0,
                 model="llama-3.1-70b-versatile",
-                max_tokens=128000,
             )
             print("Using GROQ API")
 
+    def get_prompt(self, agent_prompt, query, chat_history, agent_scratchpad=False):
+        prompt = [
+            (
+                "system",
+                agent_prompt,
+            ),
+            (
+                "user",
+                dedent(f"<query>{query}</query>\n\n<history>{chat_history}</history>"),
+            ),
+        ]
+        if agent_scratchpad:
+            prompt.append(("placeholder", "{agent_scratchpad}"))
+        return ChatPromptTemplate.from_messages(prompt)
+
     def supervisor(self, query: str, chat_history: str) -> str:
-        prompt = ChatPromptTemplate.from_messages(
-            [
-                (
-                    "system",
-                    SUPERVISOR_PROMPT,
-                ),
-                (
-                    "user",
-                    dedent(
-                        f"<query>{query}</query>\n\n<history>{chat_history}</history>"
-                    ),
-                ),
-            ]
-        )
+        prompt = self.get_prompt(SUPERVISOR_PROMPT, query, chat_history)
         chain = prompt | self.llm
         result = chain.invoke({"input": query})
         return result.content
 
     def transaction_expert(self, query: str, chat_history: str, user_id: str) -> str:
-        prompt = ChatPromptTemplate.from_messages(
-            [
-                (
-                    "system",
-                    TRANSACTION_EXPERT_PROMPT,
-                ),
-                ("system", "{chat_history}"),
-                ("human", "{input}"),
-                ("placeholder", "{agent_scratchpad}"),
-            ]
+        prompt = self.get_prompt(
+            TRANSACTION_EXPERT_PROMPT, query, chat_history, agent_scratchpad=True
         )
-
         tools = [retrieve_transaction_data]
         agent = create_tool_calling_agent(self.llm, tools, prompt)
         agent_executor = AgentExecutor(
@@ -83,27 +75,16 @@ class Agents:
         )
         result = agent_executor.invoke(
             {
-                "input": f"User ID {user_id}: " + query,
-                "chat_history": list(chat_history),
+                "user_id": user_id,
+                "input": dedent(
+                    f"<query>{query}</query>\n\n<history>{chat_history}</history>"
+                ),
             }
         )
         return result["output"]
 
     def customer_expert(self, query: str, chat_history: str):
-        prompt = ChatPromptTemplate.from_messages(
-            [
-                (
-                    "system",
-                    CUSTOMER_EXPERT_PROMPT,
-                ),
-                (
-                    "user",
-                    dedent(
-                        f"<query>{query}</query>\n\n<history>{chat_history}</history>"
-                    ),
-                ),
-            ]
-        )
+        prompt = self.get_prompt(CUSTOMER_EXPERT_PROMPT, query, chat_history)
         chain = prompt | self.llm
         result = chain.invoke({"input": query})
         return result.content
