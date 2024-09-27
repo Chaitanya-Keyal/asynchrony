@@ -144,8 +144,8 @@ To invoke this expert return complaints-expert.
         tools = [retrieve_transaction_data]
         agent = create_tool_calling_agent(self.llm, tools, prompt)
         agent_executor = AgentExecutor(
-            agent=tools,
-            tools=agent,
+            agent=agent,
+            tools=tools,
             verbose=True,
         )
         result = agent_executor.invoke(
