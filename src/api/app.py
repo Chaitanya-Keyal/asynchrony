@@ -1,10 +1,18 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from ..graph.graph import Workflow
 from ..utils import database
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 workflow_app = Workflow().app
 database.init_db()
 
@@ -40,15 +48,15 @@ class LoginRequest(BaseModel):
     user_id: int
 
 
-@app.post("/login", response_model=list[ChatHistory])
-async def handle_login(request: LoginRequest) -> list[dict[str, str]]:
+@app.post("/login", response_model=dict[str, list[ChatHistory]])
+async def handle_login(request: LoginRequest):
     user_id = request.user_id
     chat_history = database.get_chat_history(user_id)
     for history in chat_history:
         resp = history["response"]
         history["response"] = resp[: resp.find("Transaction Number")].strip()
 
-    return chat_history
+    return {"chat_history": chat_history}
 
 
 class QueryRequest(BaseModel):
@@ -56,8 +64,8 @@ class QueryRequest(BaseModel):
     user_id: int
 
 
-@app.post("/query", response_model=str)
-async def handle_query(request: QueryRequest) -> str:
+@app.post("/query", response_model=dict[str, str])
+async def handle_query(request: QueryRequest):
     user_id = request.user_id
     query = request.query
 
@@ -91,4 +99,4 @@ async def handle_query(request: QueryRequest) -> str:
             agent_output["agent"],
         )
 
-    return agent_output["output"]
+    return {"response": agent_output["output"]}
