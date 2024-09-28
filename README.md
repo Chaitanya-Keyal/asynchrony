@@ -32,9 +32,9 @@ python main.py
 5. Run the frontend server
 
 ```bash
-cd frontend
+cd client
 npm install
-npm start
+npm run dev
 ```
 
 6. Open a browser and navigate to `http://localhost:3000/`
