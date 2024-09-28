@@ -43,4 +43,4 @@ npm start
 
 ## Complaints Handling Flow
 
-![Complaints Handling Flow](image.png)
+![Complaints Handling Flow](data/complaints_flow.png)
