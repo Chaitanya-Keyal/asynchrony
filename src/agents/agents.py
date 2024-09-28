@@ -159,12 +159,11 @@ class Agents:
 
     def refund_customer(self, user_id: str):
         # This would actually be verifying if the user refund request is valid
-        # currently it's just a random check with 70% chance of being true
+        # Currently it's just a random check with 70% chance of being true
         verified = random.random() >= 0.3
-        print(verified)
         if verified:
             return (
                 "Your refund request has been verified and will be processed shortly."
             )
         else:
-            return "Your refund request could not be verified. Please provide more information."
+            return "Your refund request could not be verified. We did not detect any issues with your transaction."
