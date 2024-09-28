@@ -94,8 +94,8 @@ async def handle_query(request: QueryRequest):
         )
         database.add_chat_history(
             user_id,
-            query,
-            (agent_output["output"] + trans_num).replace("'", "''"),
+            query.replace("'", "''").replace(";", ""),
+            (agent_output["output"] + trans_num).replace("'", "''").replace(";", ""),
             agent_output["agent"],
         )
 
