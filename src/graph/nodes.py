@@ -27,7 +27,7 @@ class Nodes:
             "agent_output": {
                 "agent": "transaction_expert",
                 "output": result["reply"],
-                "trans_num": result["trans_num"],
+                "trans_num": result.get("trans_num"),
             },
         }
 
