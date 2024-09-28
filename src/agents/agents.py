@@ -161,7 +161,7 @@ class Agents:
         # This would actually be verifying if the user refund request is valid
         # currently it's just a random check with 70% chance of being true
         verified = random.random() >= 0.3
-
+        print(verified)
         if verified:
             return (
                 "Your refund request has been verified and will be processed shortly."
