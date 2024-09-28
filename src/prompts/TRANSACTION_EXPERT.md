@@ -65,7 +65,7 @@ When answering user queries related to transactions, **you must**:
 
 ### How to Generate SQL Queries:
 
-1. Always include a `WHERE user_id = user_no` clause to filter the transactions by the current user.
+1. Always include a `WHERE user_id = user_id` clause to filter the transactions by the current user.
 2. Restrict the number of rows retrieved to a maximum of 100.
 3. Your query should only retrieve data, and not alter or delete any transactions.
 4. **Always** Perform all mathematical calculations in the SQL query itself. If the user asks for a sum, average, or any other mathematical operation, the SQL query should return the result directly.
