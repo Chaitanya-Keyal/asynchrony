@@ -1,12 +1,8 @@
-import sys
-
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
-sys.path.append(".")
-
-from src.graph import Workflow
-from src.utils import database
+from ..graph.graph import Workflow
+from ..utils import database
 
 app = FastAPI()
 workflow_app = Workflow().app
@@ -48,6 +44,10 @@ class LoginRequest(BaseModel):
 async def handle_login(request: LoginRequest) -> list[dict[str, str]]:
     user_id = request.user_id
     chat_history = database.get_chat_history(user_id)
+    for history in chat_history:
+        resp = history["response"]
+        history["response"] = resp[: resp.find("Transaction Number")].strip()
+
     return chat_history
 
 
@@ -78,8 +78,17 @@ async def handle_query(request: QueryRequest) -> str:
         raise HTTPException(status_code=500, detail=str(e))
 
     agent_output = response["agent_output"]
-    database.add_chat_history(
-        user_id, query, agent_output["output"], agent_output["agent"]
-    )
+    if agent_output["agent"] != "complaints_expert":
+        trans_num = (
+            "\n\n Transaction Number: " + agent_output["trans_num"]
+            if agent_output.get("trans_num")
+            else ""
+        )
+        database.add_chat_history(
+            user_id,
+            query,
+            (agent_output["output"] + trans_num).replace("'", "''"),
+            agent_output["agent"],
+        )
 
     return agent_output["output"]
