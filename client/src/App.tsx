@@ -1,10 +1,19 @@
+import SignIn from "./SignIn";
+import Chat from "./Chat";
+
 function App() {
+
+  const auth: boolean = false;
 
   return (
     <>
-      <h1 className="text-3xl font-bold underline">
-        Hello world!
-      </h1>
+      <div className="w-screen h-screen bg-gray-800 flex items-center justify-center">
+        {auth ? (
+          <SignIn></SignIn>
+        ) : (
+          <Chat></Chat>
+        )}
+      </div>
     </>
   )
 }
