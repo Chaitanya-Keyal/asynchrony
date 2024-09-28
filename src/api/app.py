@@ -80,7 +80,7 @@ async def handle_query(request: QueryRequest) -> str:
     agent_output = response["agent_output"]
     trans_num = (
         "\n\n Transaction Number: " + agent_output["trans_num"]
-        if agent_output["trans_num"]
+        if agent_output.get("trans_num")
         else ""
     )
     database.add_chat_history(

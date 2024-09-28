@@ -42,7 +42,9 @@ class Nodes:
     def complaints_expert(self, state):
         query = state.get("query")
         chat_history = state.get("chat_history")
-        result = json.loads(ag.complaints_expert(query, chat_history))
+        user_id = state.get("user_id")
+        assert user_id is not None
+        result = ag.complaints_expert(query, chat_history, user_id)
         return {
             "agent_output": {"agent": "complaints_expert", "output": result},
         }

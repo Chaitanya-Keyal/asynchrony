@@ -1,13 +1,12 @@
 import uuid
-from typing import *
-from langchain_core.documents import Document
+
 import faiss
-from dotenv import load_dotenv
 import pandas as pd
-from langchain_community.vectorstores import FAISS
+from dotenv import load_dotenv
 from langchain_community.docstore.in_memory import InMemoryDocstore
+from langchain_community.vectorstores import FAISS, DistanceStrategy
+from langchain_core.documents import Document
 from langchain_openai import OpenAIEmbeddings
-from langchain_community.vectorstores import DistanceStrategy
 
 load_dotenv()
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
